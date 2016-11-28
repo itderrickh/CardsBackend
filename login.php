@@ -27,8 +27,11 @@ if($userDao->authenticate($email, $password)) {
     $signature = base64_encode(hash_hmac('sha256', $header_and_payload_combined, $secret_key, true));
 
     $jwt_token = $header_and_payload_combined . '.' . $signature;
+	
+	$result = array();
+	$result['token'] = $jwt_token;
 
-    echo $jwt_token;
+    echo json_encode($result);
 } else {
     echo "";
 }
