@@ -39,5 +39,26 @@ class UserDAO {
         
         return $user;
     }
+
+    function getGameUsers($gameId) {
+        $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
+        $stmt = $mysqli->prepare("SELECT id, userid FROM gameuser WHERE gameid = ?");
+        $stmt->bind_param("i", $gameId);
+        $stmt->execute();
+        
+        $users = array();
+        $stmt->bind_result($id, $userId);
+        while ($stmt->fetch()) {
+            $row['userid'] = $userId;
+            $row['gameid'] = $gameId;
+            $row['id'] = $id;
+            array_push($users, $row);
+        }
+
+        $stmt->close();
+        $mysqli->close();
+
+        return $users;
+    }
 }
 ?>
