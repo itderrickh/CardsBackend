@@ -28,7 +28,6 @@ if(verifyToken($token, $config)) {
             $result['success'] = true;
         }
     }
-    
 }
 
 echo json_encode($result);

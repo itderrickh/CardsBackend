@@ -7,7 +7,7 @@ class HandDAO {
 
     function getHand($userId, $gameId) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("SELECT cards.id, cards.suit, cards.value FROM hands
+        $stmt = $mysqli->prepare("SELECT handcards.id AS handcardid, cards.id, cards.suit, cards.value FROM hands
                                   LEFT JOIN handcards ON handcards.handid = hands.id
                                   LEFT JOIN cards ON cards.id = handcards.cardid
                                   WHERE hands.gameid = ?
@@ -17,8 +17,9 @@ class HandDAO {
         $stmt->execute();
         
         $cards = array();
-        $stmt->bind_result($id, $suit, $value);
+        $stmt->bind_result($handCardId, $id, $suit, $value);
         while ($stmt->fetch()) {
+            $row['handcardid'] = $handCardId;
             $row['id'] = $userId;
             $row['suit'] = $suit;
             $row['value'] = $value;
