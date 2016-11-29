@@ -14,8 +14,8 @@ $token = $_SERVER['HTTP_AUTHORIZE'];
 
 if(verifyToken($token, $config)) {
     $tokenInfo = getTokenInfo($token);
-    $user = $userDAO->getUser($tokenInfo['email']);
-    $gameId = $gameDao->getCurrentGame();
+    $user = $userDao->getUser($tokenInfo['email']);
+    $gameId = $gameDao->getOrCreateGame();
 
     if(!$gameDao->isGameReady($gameId)) {
         $gameDao->addUserToGame($user['id'], $gameId);

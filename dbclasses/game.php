@@ -11,6 +11,7 @@ class GameDAO {
         $stmt->execute();
 
         $stmt->bind_result($id);
+        $stmt->fetch();
         
         $stmt->close();
         $mysqli->close();
@@ -27,19 +28,36 @@ class GameDAO {
         $mysqli->close();
     }
 
-    function addUserToGame($userid, $gameid) {
+    function isUserInGame($userId, $gameId) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("INSERT INTO gameuser(userid, gameid) VALUES (?, ?)");
-        $stmt->bind_param("ii", $userid, $gameid);
+        $stmt = $mysqli->prepare("SELECT COUNT(*) FROM gameuser WHERE gameid = ? AND userid = ?");
+        $stmt->bind_param("ii", $gameId, $userId);
         $stmt->execute();
+
+        $stmt->bind_result($count);
+        $stmt->fetch();
         
         $stmt->close();
         $mysqli->close();
+
+        return $count > 0;
+    }
+
+    function addUserToGame($userid, $gameid) {
+        if(!$this->isUserInGame($userid, $gameid)) {
+            $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
+            $stmt = $mysqli->prepare("INSERT INTO gameuser(userid, gameid) VALUES (?, ?)");
+            $stmt->bind_param("ii", $userid, $gameid);
+            $stmt->execute();
+            
+            $stmt->close();
+            $mysqli->close();
+        }
     }
 
     function getOrCreateGame() {
         $gameid = $this->getCurrentGame();
-        if(is_null($game)) {
+        if(is_null($gameid)) {
             $this->createGame();
             $gameid = $this->getCurrentGame();
         }
@@ -54,6 +72,7 @@ class GameDAO {
         $stmt->execute();
         
         $stmt->bind_result($count);
+        $stmt->fetch();
 
         $stmt->close();
         $mysqli->close();
@@ -104,6 +123,7 @@ class GameDAO {
         $stmt->execute();
         
         $stmt->bind_result($count);
+        $stmt->fetch();
 
         $stmt->close();
         $mysqli->close();
