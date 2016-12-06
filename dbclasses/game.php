@@ -94,7 +94,7 @@ class GameDAO {
         $stmt2->bind_param("ii", $userid, $gameid);
         $stmt2->execute();
         
-        $stmt->close();
+        $stmt2->close();
 
         $mysqli->close();
     }
