@@ -58,18 +58,6 @@ class GameDAO {
         return $count > 0;
     }
 
-    function addUserToGame($userid, $gameid) {
-        if(!$this->isUserInGame($userid, $gameid)) {
-            $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-            $stmt = $mysqli->prepare("INSERT INTO gameuser(userid, gameid) VALUES (?, ?)");
-            $stmt->bind_param("ii", $userid, $gameid);
-            $stmt->execute();
-            
-            $stmt->close();
-            $mysqli->close();
-        }
-    }
-
     function createGame() {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
         $stmt = $mysqli->prepare("INSERT INTO games(iscomplete, status) VALUES (0, 1)");
