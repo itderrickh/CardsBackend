@@ -9,7 +9,6 @@ class GameDAO {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
         $stmt = $mysqli->prepare("SELECT id, iscomplete, status, currentplayer FROM games WHERE iscomplete = 0 LIMIT 1");
         $stmt->execute();
-
         $stmt->bind_result($id, $iscomplete, $status, $currentplayer);
         $stmt->fetch();
 
@@ -49,9 +48,26 @@ class GameDAO {
         $stmt = $mysqli->prepare("UPDATE games SET currentplayer = ? WHERE gameid = ?");
         $stmt->bind_param("ii", $num, $gameid);
         $stmt->execute();
+
+        $stmt->bind_result($count);
+        $stmt->fetch();
         
         $stmt->close();
         $mysqli->close();
+
+        return $count > 0;
+    }
+
+    function addUserToGame($userid, $gameid) {
+        if(!$this->isUserInGame($userid, $gameid)) {
+            $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
+            $stmt = $mysqli->prepare("INSERT INTO gameuser(userid, gameid) VALUES (?, ?)");
+            $stmt->bind_param("ii", $userid, $gameid);
+            $stmt->execute();
+            
+            $stmt->close();
+            $mysqli->close();
+        }
     }
 
     function createGame() {
@@ -70,6 +86,7 @@ class GameDAO {
         $stmt->execute();
         
         $stmt->bind_result($count);
+        $stmt->fetch();
 
         $stmt->close();
         $mysqli->close();
@@ -137,6 +154,7 @@ class GameDAO {
         $stmt->execute();
         
         $stmt->bind_result($count);
+        $stmt->fetch();
 
         $stmt->close();
         $mysqli->close();
