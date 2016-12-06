@@ -31,5 +31,42 @@ class HandDAO {
 
         return $cards;
     }
+
+    function playCard($userId, $handCardId, $gameId, $gameDao) {
+        $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
+        $stmt = $mysqli->prepare("UPDATE handcards SET isplayed = 1 WHERE handid = ?");
+        $stmt->bind_param("i", $handCardId);
+        $stmt->execute();
+
+        $stmt->bind_result($cardid);
+        $stmt->fetch();
+
+        //Set current turn to played
+        $stmt2 = $mysqli->prepare("UPDATE gameuser SET played = 1 WHERE userid = ? AND gameid = ?");
+        $stmt2->bind_param("ii", $userId, $gameId);
+        $stmt2->execute();
+
+        $stmt3 = $mysqli->prepare("SELECT id FROM gameuser WHERE played = 0 AND gameid = ?");
+        $stmt3->bind_param("i", $gameId);
+        $stmt3->execute();
+        
+        $playersLeft = array();
+        $stmt3->bind_result($id);
+        while ($stmt3->fetch()) {
+            $row['id'] = $id;
+            array_push($playersLeft, $row);
+        }
+
+        if(count($playersLeft) > 0) {
+            $gameDao->setCurrentPlayer($playersLeft[0]);
+        } else {
+            $gameDao->setGameStatus(5, $gameId);
+        }
+
+        $stmt->close();
+        $stmt2->close();
+        $stmt3->close();
+        $mysqli->close();
+    }
 }
 ?>
