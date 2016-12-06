@@ -57,6 +57,7 @@ if(verifyToken($token, $config)) {
         $result['status'] = 3;
         $result['bids'] = $bids;
         $result['hand'] = $userHand;
+        $result['users'] = $userDao->getGameUsers($game['id']);
     } else if($game['status'] == 4) {
         $result['status'] = 4;
         $result['yourturn'] = ($game['currentplayer'] == $user['id']);
