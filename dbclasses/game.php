@@ -67,9 +67,9 @@ class GameDAO {
         $mysqli->close();
     }
 
-    function isGameSetup($gameId) {
+    function isGameSetup($gameid) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("SELECT COUNT(*) AS Count FROM hands WHERE gameid = ?");
+        $stmt = $mysqli->prepare("SELECT COUNT(*) AS Count FROM gameuser WHERE gameid = ?");
         $stmt->bind_param("i", $gameid);
         $stmt->execute();
         
@@ -78,25 +78,34 @@ class GameDAO {
 
         $stmt->close();
         $mysqli->close();
-
-        return $count >= 1;
+        
+        return $count == 5;
     }
 
     function addUserToGame($userid, $gameid) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("INSERT INTO gameuser(userid, gameid) VALUES (?, ?)");
-        $stmt->bind_param("ii", $userid, $gameid);
-        $stmt->execute();
-        
-        $stmt->close();
 
-        $stmt2 = $mysqli->prepare("UPDATE game SET currentplayer = ? WHERE id = ?");
-        $stmt2->bind_param("ii", $userid, $gameid);
-        $stmt2->execute();
-        
-        $stmt2->close();
+        $prestmt = $mysqli->prepare("SELECT COUNT(*) AS Count FROM gameuser WHERE userid = ? AND gameid = ?");
+        $prestmt->bind_param("ii", $userid, $gameid);
+        $prestmt->execute();
+        $prestmt->bind_result($count);
+        $prestmt->fetch();
 
-        $mysqli->close();
+        $prestmt->close();
+
+        if($count == 0) {
+            $stmt = $mysqli->prepare("INSERT INTO gameuser(userid, gameid, played) VALUES (?, ?, 0)");
+            $stmt->bind_param("ii", $userid, $gameid);
+            $stmt->execute();
+            
+            $stmt2 = $mysqli->prepare("UPDATE games SET currentplayer = ? WHERE id = ?");
+            $stmt2->bind_param("ii", $userid, $gameid);
+            $stmt2->execute();
+            
+            $stmt->close();
+            $stmt2->close();
+            $mysqli->close();
+        }
     }
 
     function startGame($gameid, $deck, $users) {

@@ -70,6 +70,6 @@ if(verifyToken($token, $config)) {
         $gameDao->completeGame($game['id']);
     }
 
-    echo $json_encode($result);
+    echo json_encode($result);
 }
 ?>
