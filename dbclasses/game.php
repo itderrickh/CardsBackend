@@ -141,6 +141,11 @@ class GameDAO {
             $i += 1;
         }
 
+        $stmt3 = $mysqli->prepare("UPDATE games SET trump = ? WHERE id = ?");
+        $stmt3->bind_param("ii", $deck[51]['id'], $gameid);
+        $stmt3->execute();
+        $stmt3->close();
+
         $mysqli->close();
     }
 

@@ -39,7 +39,7 @@ if(verifyToken($token, $config)) {
     //Setup game
     else if($game['status'] == 2) {
         $deck = $cardDao->getCards();
-        $users = $userDao->getGameUsers($gameId);
+        $users = $userDao->getGameUsers($game['id']);
         $gameDao->startGame($game['id'], $deck, $users);
         $gameDao->setGameStatus(3, $game['id']);
 
@@ -47,7 +47,6 @@ if(verifyToken($token, $config)) {
     }
     //Wait for bids/return bids
     else if($game['status'] == 3) {
-        $userHand = $handDao->getHand($user['id'], $game['id']);
         $bids = $bidDao->getBids($game['id']);
 
         if(count($bids) >= 5) {
@@ -56,7 +55,7 @@ if(verifyToken($token, $config)) {
 
         $result['status'] = 3;
         $result['bids'] = $bids;
-        $result['hand'] = $userHand;
+        $result['hand'] = $handDao->getHand($user['id'], $game['id']);
         $result['users'] = $userDao->getGameUsers($game['id']);
     } else if($game['status'] == 4) {
         $result['status'] = 4;

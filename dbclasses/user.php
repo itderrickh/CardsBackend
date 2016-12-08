@@ -42,16 +42,19 @@ class UserDAO {
 
     function getGameUsers($gameId) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("SELECT id, userid FROM gameuser WHERE gameid = ?");
+        $stmt = $mysqli->prepare("SELECT gameuser.id, userid, users.email FROM gameuser 
+                                    LEFT JOIN users ON users.id = gameuser.userid
+                                    WHERE gameid = ?");
         $stmt->bind_param("i", $gameId);
         $stmt->execute();
         
         $users = array();
-        $stmt->bind_result($id, $userId);
+        $stmt->bind_result($id, $userId, $email);
         while ($stmt->fetch()) {
             $row['userid'] = $userId;
             $row['gameid'] = $gameId;
             $row['id'] = $id;
+            $row['email'] = $email;
             array_push($users, $row);
         }
 
