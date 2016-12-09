@@ -49,20 +49,20 @@ if(verifyToken($token, $config)) {
     else if($game['status'] == 3) {
         $bids = $bidDao->getBids($game['id']);
 
-        if(count($bids) >= 5) {
-            $gameDao->setGameStatus(4, $game['id']);
-        }
+        if(count($bids) >= 5) { $gameDao->setGameStatus(4, $game['id']); }
 
         $result['status'] = 3;
         $result['bids'] = $bids;
+        $result['trump'] = $gameDao->getTrumpCard($game['trump']);
         $result['hand'] = $handDao->getHand($user['id'], $game['id']);
         $result['users'] = $userDao->getGameUsers($game['id']);
     } else if($game['status'] == 4) {
         $result['status'] = 4;
         $result['yourturn'] = ($game['currentplayer'] == $user['id']);
+        $result['field'] = $gameDao->getField($game['id'], $game['tricknumber']);
+        $result['bids'] = $bidDao->getBids($game['id']);
     } else if($game['status'] == 5) {
         //Determine scores
-
         $gameDao->resetUsers($game['id']);
         $gameDao->setGameStatus(6, $game['id']);
     } else if($game['status'] == 6) {

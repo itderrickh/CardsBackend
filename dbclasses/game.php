@@ -7,15 +7,17 @@ class GameDAO {
 
     function getGame() {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("SELECT id, iscomplete, status, currentplayer FROM games WHERE iscomplete = 0 LIMIT 1");
+        $stmt = $mysqli->prepare("SELECT id, iscomplete, status, currentplayer, trump, tricknumber FROM games WHERE iscomplete = 0 LIMIT 1");
         $stmt->execute();
-        $stmt->bind_result($id, $iscomplete, $status, $currentplayer);
+        $stmt->bind_result($id, $iscomplete, $status, $currentplayer, $trump, $tricknumber);
         $stmt->fetch();
 
         $result['id'] = $id;
         $result['iscomplete'] = $iscomplete;
         $result['status'] = $status;
         $result['currentplayer'] = $currentplayer;
+        $result['trump'] = $trump;
+        $result['tricknumber'] = $tricknumber;
 
         $stmt->close();
         $mysqli->close();
@@ -138,6 +140,7 @@ class GameDAO {
                 $c += 1;
             }
 
+            $c = 0;
             $i += 1;
         }
 
@@ -182,6 +185,50 @@ class GameDAO {
 
         $stmt2->close();
         $mysqli->close();
+    }
+
+    function getTrumpCard($trumpId) {
+        $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
+        $stmt = $mysqli->prepare("SELECT id, suit, value FROM cards WHERE id = ?");
+        $stmt->bind_param("i", $trumpId);
+        $stmt->execute();
+        
+        $result = array();
+
+        $stmt->bind_result($id, $suit, $value);
+        $stmt->fetch();
+
+        $result['id'] = $id;
+        $result['suit'] = $suit;
+        $result['value'] = $value;
+
+        $stmt->close();
+        $mysqli->close();
+
+        return $result;
+    }
+
+    function getField($gameId, $tricknumber) {
+        $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
+        $stmt = $mysqli->prepare("SELECT cards.id, tablecards.userid, suit, value FROM cards
+                                    INNER JOIN tablecards ON tablecards.cardid = cards.id
+                                    WHERE gameid = ?
+                                    AND tricknumber = ?");
+        $stmt->bind_param("ii", $gameId, $tricknumber);
+        $stmt->execute();
+
+        $result = array();
+        $stmt->bind_result($id, $userid, $suit, $value);
+        while($stmt->fetch()) {
+            $row['id'] = $id;
+            $row['userid'] = $userid;
+            $row['suit'] = $suit;
+            $row['value'] = $value;
+
+            array_push($result, $row);
+        }
+
+        return $result;
     }
 }
 ?>

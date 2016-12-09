@@ -38,8 +38,16 @@ class HandDAO {
         $stmt->bind_param("i", $handCardId);
         $stmt->execute();
 
-        $stmt->bind_result($cardid);
-        $stmt->fetch();
+        $stmtPre1 = $mysqli->prepare("SELECT tricknumber FROM games WHERE id = ?");
+        $stmtPre1->bind_param("i", $gameId);
+        $stmtPre1->execute();
+
+        $stmtPre1->bind_result($trickNum);
+        $stmtPre1->fetch();
+
+        $stmt1 = $mysqli->prepare("INSERT INTO tablecards (userid, cardid, tricknumber, gameid) VALUES ([value-1],[value-2],[value-3],[value-4],[value-5])");
+        $stmt1->bind_param("iiii", $userId, $handCardId, $trickNum, $gameId);
+        $stmt1->execute();
 
         //Set current turn to played
         $stmt2 = $mysqli->prepare("UPDATE gameuser SET played = 1 WHERE userid = ? AND gameid = ?");

@@ -11,7 +11,7 @@ class CardDAO {
         $stmt->execute();
         
         $cards = array();
-        $stmt->bind_result($suit, $value, $id);
+        $stmt->bind_result($id, $suit, $value);
         while ($stmt->fetch()) {
             $row['suit'] = $suit;
             $row['value'] = $value;
