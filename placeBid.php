@@ -18,7 +18,7 @@ if(verifyToken($token, $config)) {
     $user = $userDao->getUser($tokenInfo['email']);
 
     $game = $gameDao->getOrCreateGame();
-    $bidDao->createBid($user['id'], $AJAX_FORM['bid'], $game['id']);
+    $bidDao->createBid($user['id'], $AJAX_FORM['bid'], $game['id'], $game['tricknumber']);
 
     $result = array();
     $result['status'] = true;

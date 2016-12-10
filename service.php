@@ -47,7 +47,7 @@ if(verifyToken($token, $config)) {
     }
     //Wait for bids/return bids
     else if($game['status'] == 3) {
-        $bids = $bidDao->getBids($game['id']);
+        $bids = $bidDao->getBids($game['id'], $game['tricknumber']);
 
         if(count($bids) >= 5) { $gameDao->setGameStatus(4, $game['id']); }
 
@@ -60,7 +60,7 @@ if(verifyToken($token, $config)) {
         $result['status'] = 4;
         $result['yourturn'] = ($game['currentplayer'] == $user['id']);
         $result['field'] = $gameDao->getField($game['id'], $game['tricknumber']);
-        $result['bids'] = $bidDao->getBids($game['id']);
+        $result['bids'] = $bidDao->getBids($game['id'], $game['tricknumber']);
     } else if($game['status'] == 5) {
         //Determine scores
         $gameDao->resetUsers($game['id']);

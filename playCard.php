@@ -19,5 +19,9 @@ if(verifyToken($token, $config)) {
 
     $game = $gameDao->getOrCreateGame();
     $handDao->playCard($user['id'], $AJAX_FORM['id'], $game['id'], $gameDao);
+
+    $result = array();
+    $result['status'] = true;
+    echo json_encode($result);
 }
 ?>

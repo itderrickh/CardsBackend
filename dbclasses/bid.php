@@ -5,20 +5,20 @@ class BidDAO {
         $this->config = $config;
     }
 
-    function createBid($userid, $value, $gameid) {
+    function createBid($userid, $value, $gameid, $trickNum) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("INSERT INTO bids(userid, value, gameid) VALUES (?, ?, ?)");
-        $stmt->bind_param("iii", $userid, $value, $gameid);
+        $stmt = $mysqli->prepare("INSERT INTO bids(userid, value, gameid, tricknumber) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("iiii", $userid, $value, $gameid, $trickNum);
         $stmt->execute();
         
         $stmt->close();
         $mysqli->close();
     }
 
-    function getBids($gameid) {
+    function getBids($gameid, $trickNum) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("SELECT userid, value FROM bids WHERE gameid = ?");
-        $stmt->bind_param("i", $gameid);
+        $stmt = $mysqli->prepare("SELECT userid, value FROM bids WHERE gameid = ? AND tricknumber = ?");
+        $stmt->bind_param("ii", $gameid, $trickNum);
         $stmt->execute();
 
         $stmt->bind_result($userid, $value);
