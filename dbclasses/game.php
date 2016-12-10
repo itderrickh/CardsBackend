@@ -47,17 +47,12 @@ class GameDAO {
 
     function setCurrentUser($num, $gameid) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("UPDATE games SET currentplayer = ? WHERE gameid = ?");
+        $stmt = $mysqli->prepare("UPDATE games SET currentplayer = ? WHERE id = ?");
         $stmt->bind_param("ii", $num, $gameid);
         $stmt->execute();
-
-        $stmt->bind_result($count);
-        $stmt->fetch();
         
         $stmt->close();
         $mysqli->close();
-
-        return $count > 0;
     }
 
     function createGame() {
@@ -210,11 +205,11 @@ class GameDAO {
 
     function getField($gameId, $tricknumber) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("SELECT cards.id, tablecards.userid, suit, value FROM cards
-                                    INNER JOIN tablecards ON tablecards.cardid = cards.id
-                                    WHERE gameid = ?
-                                    AND tricknumber = ?");
-        $stmt->bind_param("ii", $gameId, $tricknumber);
+        $stmt = $mysqli->prepare("SELECT tablecards.id, userid, suit, value FROM tablecards
+                                    LEFT JOIN handcards ON tablecards.cardid = handcards.id
+                                    LEFT JOIN cards ON handcards.cardid = cards.id
+                                    WHERE tricknumber = ? AND gameid = ?");
+        $stmt->bind_param("ii", $tricknumber, $gameId);
         $stmt->execute();
 
         $result = array();

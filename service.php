@@ -61,6 +61,9 @@ if(verifyToken($token, $config)) {
         $result['yourturn'] = ($game['currentplayer'] == $user['id']);
         $result['field'] = $gameDao->getField($game['id'], $game['tricknumber']);
         $result['bids'] = $bidDao->getBids($game['id'], $game['tricknumber']);
+        $result['trump'] = $gameDao->getTrumpCard($game['trump']);
+        $result['hand'] = $handDao->getHand($user['id'], $game['id']);
+        $result['users'] = $userDao->getGameUsers($game['id']);
     } else if($game['status'] == 5) {
         //Determine scores
         $gameDao->resetUsers($game['id']);

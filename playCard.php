@@ -15,10 +15,10 @@ $token = $_SERVER['HTTP_AUTHORIZE'];
 
 if(verifyToken($token, $config)) {
     $tokenInfo = getTokenInfo($token);
-    $user = $userDAO->getUser($tokenInfo['email']);
+    $user = $userDao->getUser($tokenInfo['email']);
 
     $game = $gameDao->getOrCreateGame();
-    $handDao->playCard($user['id'], $AJAX_FORM['id'], $game['id'], $gameDao);
+    $handDao->playCard($user['id'], $AJAX_FORM['id'], $game['id'], $gameDao, $game['tricknumber']);
 
     $result = array();
     $result['status'] = true;
