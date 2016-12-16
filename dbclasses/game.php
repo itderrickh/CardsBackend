@@ -247,17 +247,23 @@ class GameDAO {
 
         //Determine highest card
         $highestCard = $cards[0];
-        for($i = 1; $i < cout($cards); $i++) {
+        for($i = 1; $i < count($cards); $i++) {
             if($highestCard['suit'] == $cards[$i]['suit']) {
-                //Highest card wins
+                if(!$this->highestCard($highestCard, $cards[$i])) {
+                    $highestCard = $cards[$i];
+                }
             } else {
                 //Cards have same suit
                 if($highestCard['suit'] == $trump['suit'] && cards[$i]['suit'] == $trump['suit']) {
-                    //Highest number wins
+                    if(!$this->highestCard($highestCard, $cards[$i])) {
+                        $highestCard = $cards[$i];
+                    }
                 } else if($highestCard['suit'] != $trump['suit'] && cards[$i]['suit'] == $trump['suit']) {
                     $highestCard = $card[$i];
                 } else if($highestCard['suit'] != $trump['suit'] && cards[$i]['suit'] != $trump['suit']) {
-                    //Highest number wins
+                    if(!$this->highestCard($highestCard, $cards[$i])) {
+                        $highestCard = $cards[$i];
+                    }
                 }
             }
         }
@@ -339,6 +345,60 @@ class GameDAO {
         $stmt->close();
         $mysqli->close();
         return $winnerEmail;
+    }
+
+    function higherCard($a, $b) {
+        $ACE = 'A';
+        $KING = 'K';
+        $QUEEEN = 'Q';
+        $JACK = 'J';
+        $TEN = '10';
+        $NINE = '9';
+        $EIGHT = '8';
+        $SEVEN = '7';
+        $SIX = '6';
+        $FIVE = '5';
+        $FOUR = '4';
+        $THREE = '3';
+        $TWO = '2';
+
+        $aVal = 0;
+        switch($a['value']) {
+            case $ACE:
+                $aVal = 14;
+                break;
+            case $KING:
+                $aVal = 13;
+                break;
+            case $QUEEN:
+                $aVal = 12;
+                break;
+            case $JACK:
+                $aVal = 11;
+                break;
+            default:
+                parse_str($a['value'], $aVal);
+        }
+
+        $bVal = 0;
+        switch($b['value']) {
+            case $ACE:
+                $bVal = 14;
+                break;
+            case $KING:
+                $bVal = 13;
+                break;
+            case $QUEEN:
+                $bVal = 12;
+                break;
+            case $JACK:
+                $bVal = 11;
+                break;
+            default:
+                parse_str($b['value'], $bVal);
+        }
+
+        return $aVal >= $bVal;
     }
 }
 ?>
