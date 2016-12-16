@@ -288,5 +288,26 @@ class GameDAO {
         //Return if we keep playing
         return $trickNum < 10;
     }
+
+    function getScores($gameId) {
+        //Get cards played
+        $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
+        $stmt = $mysqli->prepare("SELECT gameuser.userid, gameuser.score FROM gameuser WHERE gameuser.gameid = ?");
+        $stmt->bind_param("i", $gameId);
+        $stmt->execute();
+
+        $scores = array();
+        $stmt->bind_result($userid, $score);
+        while($stmt->fetch()) {
+            $row['userid'] = $userid;
+            $row['score'] = $score;
+            array_push($scores, $row);
+        }
+
+        $stmt->close();
+        $mysqli->close();
+
+        return $scores;
+    }
 }
 ?>

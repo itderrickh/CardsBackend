@@ -56,6 +56,7 @@ if(verifyToken($token, $config)) {
         $result['trump'] = $gameDao->getTrumpCard($game['trump']);
         $result['hand'] = $handDao->getHand($user['id'], $game['id']);
         $result['users'] = $userDao->getGameUsers($game['id']);
+        $result['scores'] = $gameDao->getScores($game['id']);
     } else if($game['status'] == 4) {
         $result['status'] = 4;
         $result['yourturn'] = ($game['currentplayer'] == $user['id']);
@@ -64,6 +65,7 @@ if(verifyToken($token, $config)) {
         $result['trump'] = $gameDao->getTrumpCard($game['trump']);
         $result['hand'] = $handDao->getHand($user['id'], $game['id']);
         $result['users'] = $userDao->getGameUsers($game['id']);
+        $result['scores'] = $gameDao->getScores($game['id']);
     } else if($game['status'] == 5) {
         //Determine scores
         $toContinue = $gameDao->postScores($game['id'], $game['tricknumber'], $game['trump']);
