@@ -254,13 +254,13 @@ class GameDAO {
                 }
             } else {
                 //Cards have same suit
-                if($highestCard['suit'] == $trump['suit'] && cards[$i]['suit'] == $trump['suit']) {
+                if($highestCard['suit'] == $trump['suit'] && $cards[$i]['suit'] == $trump['suit']) {
                     if(!$this->highestCard($highestCard, $cards[$i])) {
                         $highestCard = $cards[$i];
                     }
-                } else if($highestCard['suit'] != $trump['suit'] && cards[$i]['suit'] == $trump['suit']) {
+                } else if($highestCard['suit'] != $trump['suit'] && $cards[$i]['suit'] == $trump['suit']) {
                     $highestCard = $card[$i];
-                } else if($highestCard['suit'] != $trump['suit'] && cards[$i]['suit'] != $trump['suit']) {
+                } else if($highestCard['suit'] != $trump['suit'] && $cards[$i]['suit'] != $trump['suit']) {
                     if(!$this->highestCard($highestCard, $cards[$i])) {
                         $highestCard = $cards[$i];
                     }
