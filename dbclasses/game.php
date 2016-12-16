@@ -225,5 +225,68 @@ class GameDAO {
 
         return $result;
     }
+
+    function postScores($gameId, $trickNum, $trump) {
+        //Get cards played
+        $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
+        $stmt = $mysqli->prepare("CALL getPlayedCards(?, ?)");
+        $stmt->bind_param("ii", $trickNum, $gameId);
+        $stmt->execute();
+
+        $cards = array();
+        $stmt->bind_result($suit, $value, $id);
+        while($stmt->fetch()) {
+            $row['id'] = $id;
+            $row['suit'] = $suit;
+            $row['value'] = $value;
+
+            array_push($cards, $row);
+        }
+
+        $stmt->close();
+
+        //Determine highest card
+        $highestCard = $cards[0];
+        for($i = 1; $i < cout($cards); $i++) {
+            if($highestCard['suit'] == $cards[$i]['suit']) {
+                //Highest card wins
+            } else {
+                //Cards have same suit
+                if($highestCard['suit'] == $trump['suit'] && cards[$i]['suit'] == $trump['suit']) {
+                    //Highest number wins
+                } else if($highestCard['suit'] != $trump['suit'] && cards[$i]['suit'] == $trump['suit']) {
+                    $highestCard = $card[$i];
+                } else if($highestCard['suit'] != $trump['suit'] && cards[$i]['suit'] != $trump['suit']) {
+                    //Highest number wins
+                }
+            }
+        }
+
+        $userId = $highestCard['id'];
+
+        //Get bid of highest card
+        $stmt1 = $mysqli->prepare("SELECT userid, value FROM bids WHERE gameid = ? AND tricknumber = ?");
+        $stmt1->bind_param("ii", $gameid, $trickNum);
+        $stmt1->execute();
+
+        $stmt1->bind_result($userid, $value);
+        $resultValue = 0;
+        while($stmt1->fetch()) {
+            if($userid == $userId) {
+                $resultValue = $value;
+            }
+        }
+
+        $stmt1->close();
+
+        //Give points to highest card
+        $stmt2 = $mysqli->prepare("UPDATE gameuser SET score = ? WHERE userid = ?");
+        $stmt2->bind_param("ii", $resultValue, $userId);
+        $stmt2->execute();
+        $stmt2->close();
+
+        //Return if we keep playing
+        return $trickNum < 10;
+    }
 }
 ?>

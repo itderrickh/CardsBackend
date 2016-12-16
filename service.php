@@ -66,10 +66,19 @@ if(verifyToken($token, $config)) {
         $result['users'] = $userDao->getGameUsers($game['id']);
     } else if($game['status'] == 5) {
         //Determine scores
-        $gameDao->resetUsers($game['id']);
-        $gameDao->setGameStatus(6, $game['id']);
+        $toContinue = $gameDao->postScores($game['id'], $game['tricknumber'], $game['trump']);
+
+        if($toContinue) {
+            //Go back to bids
+            $gameDao->setGameStatus(3, $game['id']);
+        } else {
+            //Finish the game
+            $gameDao->setGameStatus(6, $game['id']);
+        }
     } else if($game['status'] == 6) {
         $gameDao->completeGame($game['id']);
+
+        //Return the winnner
     }
 
     echo json_encode($result);
