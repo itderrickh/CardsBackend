@@ -309,5 +309,36 @@ class GameDAO {
 
         return $scores;
     }
+
+    function isWinner($gameId, $userId) {
+        $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
+        $stmt = $mysqli->prepare("SELECT userid, score, users.email FROM gameuser
+                                    LEFT JOIN users ON gameuser.userid = users.id
+                                    WHERE gameuser.gameid = ?");
+        $stmt->bind_param("i", $gameId);
+        $stmt->execute();
+
+        $scores = array();
+        $stmt->bind_result($userid, $score, $email);
+        while($stmt->fetch()) {
+            $row['userid'] = $userid;
+            $row['score'] = $score;
+            $row['email'] = $email;
+            array_push($scores, $row);
+        }
+
+        $winner = $scores[0];
+        $winnerEmail = $winner['email'];
+        for($v = 1; $v < count($scores); $v++) {
+            if($winner['score'] < $scores[$v]['score']) {
+                $winner = $scores[$v];
+                $winnerEmail = $winner['email'];
+            }
+        }
+
+        $stmt->close();
+        $mysqli->close();
+        return $winnerEmail;
+    }
 }
 ?>

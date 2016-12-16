@@ -79,8 +79,7 @@ if(verifyToken($token, $config)) {
         }
     } else if($game['status'] == 6) {
         $gameDao->completeGame($game['id']);
-
-        //Return the winnner
+        $result['isWinner'] = $tokenInfo['email'] == $gameDao->isWinner($game['id'], $user['id']);
     }
 
     echo json_encode($result);
