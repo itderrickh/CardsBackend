@@ -68,7 +68,7 @@ if(verifyToken($token, $config)) {
         $result['scores'] = $gameDao->getScores($game['id']);
     } else if($game['status'] == 5) {
         //Determine scores
-        $toContinue = $gameDao->postScores($game['id'], $game['tricknumber'], $game['trump']);
+        $toContinue = $gameDao->postScores($game['id'], $game['tricknumber'], $gameDao->getTrumpCard($game['trump']));
 
         if($toContinue) {
             //Go back to bids
