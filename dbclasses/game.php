@@ -289,8 +289,8 @@ class GameDAO {
         $stmt1->close();
 
         //Give points to highest card
-        $stmt2 = $mysqli->prepare("UPDATE gameuser SET score = score + ? WHERE userid = ?");
-        $stmt2->bind_param("ii", $resultValue, $userId);
+        $stmt2 = $mysqli->prepare("UPDATE gameuser SET score = score + 1 WHERE userid = ?");
+        $stmt2->bind_param("i", $userId);
         $stmt2->execute();
         $stmt2->close();
 
