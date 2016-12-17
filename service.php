@@ -29,6 +29,7 @@ if(verifyToken($token, $config)) {
 
     $result['messages'] = $messageDao->getMessages($game['id']);
     $result['tricknumber'] = $game['tricknumber'];
+    $result['status'] = $game['status'];
 
     //Join game
     if($game['status'] == 1) {
@@ -84,7 +85,6 @@ if(verifyToken($token, $config)) {
             $gameDao->setGameStatus(6, $game['id']);
         }
     } else if($game['status'] == 6) {
-        $gameDao->completeGame($game['id']);
         $result['isWinner'] = $tokenInfo['email'] == $gameDao->isWinner($game['id'], $user['id']);
     }
 

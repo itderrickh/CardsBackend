@@ -10,14 +10,16 @@ class GameDAO {
         $stmt = $mysqli->prepare("SELECT id, iscomplete, status, currentplayer, trump, tricknumber FROM games WHERE iscomplete = 0 LIMIT 1");
         $stmt->execute();
         $stmt->bind_result($id, $iscomplete, $status, $currentplayer, $trump, $tricknumber);
-        $stmt->fetch();
-
-        $result['id'] = $id;
-        $result['iscomplete'] = $iscomplete;
-        $result['status'] = $status;
-        $result['currentplayer'] = $currentplayer;
-        $result['trump'] = $trump;
-        $result['tricknumber'] = $tricknumber;
+        
+        $result = array();
+        while($stmt->fetch()) {
+            $result['id'] = $id;
+            $result['iscomplete'] = $iscomplete;
+            $result['status'] = $status;
+            $result['currentplayer'] = $currentplayer;
+            $result['trump'] = $trump;
+            $result['tricknumber'] = $tricknumber;
+        }
 
         $stmt->close();
         $mysqli->close();
@@ -37,7 +39,7 @@ class GameDAO {
 
     function getOrCreateGame() {
         $game = $this->getGame();
-        if(is_null($game)) {
+        if(is_null($game) || empty($game)) {
             $this->createGame();
             $game = $this->getGame();
         }
@@ -150,7 +152,7 @@ class GameDAO {
 
     function completeGame($gameid) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("UPDATE games SET iscomplete = 1 WHERE gameid = ?");
+        $stmt = $mysqli->prepare("UPDATE games SET iscomplete = 1 WHERE id = ?");
         $stmt->bind_param("i", $gameid);
         $stmt->execute();
         
