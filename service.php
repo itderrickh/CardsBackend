@@ -5,6 +5,7 @@ require_once './dbclasses/card.php';
 require_once './dbclasses/game.php';
 require_once './dbclasses/hand.php';
 require_once './dbclasses/user.php';
+require_once './dbclasses/message.php';
 require_once './verify.php';
 
 $bidDao = new BidDAO($config);
@@ -12,6 +13,7 @@ $cardDao = new CardDAO($config);
 $gameDao = new GameDAO($config);
 $handDao = new HandDAO($config);
 $userDao = new UserDAO($config);
+$messageDao = new MessageDAO($config);
 
 $AJAX_FORM = json_decode(file_get_contents('php://input'), true);
 
@@ -24,6 +26,8 @@ if(verifyToken($token, $config)) {
     $result = array();
 
     $game = $gameDao->getOrCreateGame();
+
+    $result['messages'] = $messageDao->getMessages($game['id']);
 
     //Join game
     if($game['status'] == 1) {
@@ -73,7 +77,7 @@ if(verifyToken($token, $config)) {
         if($toContinue) {
             //Go back to bids
             $gameDao->setGameStatus(3, $game['id']);
-            $gameDao->resetTurn($game['id']);
+            $gameDao->resetTurn($game['id'], $game['tricknumber']);
         } else {
             //Finish the game
             $gameDao->setGameStatus(6, $game['id']);

@@ -17,15 +17,18 @@ class BidDAO {
 
     function getBids($gameid, $trickNum) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("SELECT userid, value FROM bids WHERE gameid = ? AND tricknumber = ?");
+        $stmt = $mysqli->prepare("SELECT userid, value, email FROM bids
+                                    LEFT JOIN users ON userid = users.id
+                                    WHERE gameid = ? AND tricknumber = ?");
         $stmt->bind_param("ii", $gameid, $trickNum);
         $stmt->execute();
 
-        $stmt->bind_result($userid, $value);
+        $stmt->bind_result($userid, $value, $email);
         $result = array();
         while($stmt->fetch()) {
             $row['userid'] = $userid;
             $row['value'] = $value;
+            $row['email'] = $email;
             array_push($result, $row);
         }
         

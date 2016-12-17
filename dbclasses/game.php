@@ -101,8 +101,9 @@ class GameDAO {
             
             $stmt->close();
             $stmt2->close();
-            $mysqli->close();
         }
+
+        $mysqli->close();
     }
 
     function startGame($gameid, $deck, $users) {
@@ -147,21 +148,6 @@ class GameDAO {
         $mysqli->close();
     }
 
-    function isGameReady($gameid) {
-        $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("SELECT COUNT(*) AS Count FROM gameuser WHERE gameid = ?");
-        $stmt->bind_param("i", $gameid);
-        $stmt->execute();
-        
-        $stmt->bind_result($count);
-        $stmt->fetch();
-
-        $stmt->close();
-        $mysqli->close();
-
-        return $count >= 5;
-    }
-
     function completeGame($gameid) {
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
         $stmt = $mysqli->prepare("UPDATE games SET iscomplete = 1 WHERE gameid = ?");
@@ -173,9 +159,10 @@ class GameDAO {
     }
 
     function resetTurn($gameid, $trickNum) {
+        $newTrickNumber = $trickNum + 1;
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt1 = $mysqli->prepare("UPDATE game SET tricknumber = ? WHERE id = ?");
-        $stmt1->bind_param("ii", $trickNum + 1, $gameid);
+        $stmt1 = $mysqli->prepare("UPDATE games SET tricknumber = ? WHERE id = ?");
+        $stmt1->bind_param("ii", $newTrickNumber, $gameid);
         $stmt1->execute();
 
         $stmt1->close();
@@ -229,14 +216,24 @@ class GameDAO {
             array_push($result, $row);
         }
 
+        $stmt->close();
+        $mysqli->close();
+
         return $result;
     }
 
     function postScores($gameId, $trickNum, $trump) {
         //Get cards played
         $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
-        $stmt = $mysqli->prepare("CALL getPlayedCards(?, ?)");
-        $stmt->bind_param("ii", $trickNum, $gameId);
+        $stmt = $mysqli->prepare("SELECT cards.suit, cards.value, users.id FROM tablecards
+                                    LEFT JOIN handcards ON tablecards.cardid = handcards.id
+                                    LEFT JOIN hands ON handcards.handid = hands.id
+                                    LEFT JOIN users ON hands.userid = users.id
+                                    LEFT JOIN cards ON handcards.cardid = cards.id
+                                    LEFT JOIN bids ON bids.userid = users.id AND bids.tricknumber = ? AND bids.gameid = ?
+                                    WHERE tablecards.gameid = ?
+                                    AND tablecards.tricknumber = ?");
+        $stmt->bind_param("iiii", $trickNum, $gameId, $gameId, $trickNum);
         $stmt->execute();
 
         $cards = array();
@@ -255,19 +252,19 @@ class GameDAO {
         $highestCard = $cards[0];
         for($i = 1; $i < count($cards); $i++) {
             if($highestCard['suit'] == $cards[$i]['suit']) {
-                if(!$this->highestCard($highestCard, $cards[$i])) {
+                if(!$this->higherCard($highestCard, $cards[$i])) {
                     $highestCard = $cards[$i];
                 }
             } else {
                 //Cards have same suit
                 if($highestCard['suit'] == $trump['suit'] && $cards[$i]['suit'] == $trump['suit']) {
-                    if(!$this->highestCard($highestCard, $cards[$i])) {
+                    if(!$this->higherCard($highestCard, $cards[$i])) {
                         $highestCard = $cards[$i];
                     }
                 } else if($highestCard['suit'] != $trump['suit'] && $cards[$i]['suit'] == $trump['suit']) {
                     $highestCard = $card[$i];
                 } else if($highestCard['suit'] != $trump['suit'] && $cards[$i]['suit'] != $trump['suit']) {
-                    if(!$this->highestCard($highestCard, $cards[$i])) {
+                    if(!$this->higherCard($highestCard, $cards[$i])) {
                         $highestCard = $cards[$i];
                     }
                 }
@@ -278,7 +275,7 @@ class GameDAO {
 
         //Get bid of highest card
         $stmt1 = $mysqli->prepare("SELECT userid, value FROM bids WHERE gameid = ? AND tricknumber = ?");
-        $stmt1->bind_param("ii", $gameid, $trickNum);
+        $stmt1->bind_param("ii", $gameId, $trickNum);
         $stmt1->execute();
 
         $stmt1->bind_result($userid, $value);
@@ -296,6 +293,8 @@ class GameDAO {
         $stmt2->bind_param("ii", $resultValue, $userId);
         $stmt2->execute();
         $stmt2->close();
+
+        $mysqli->close();
 
         //Return if we keep playing
         return $trickNum < 10;
@@ -356,7 +355,7 @@ class GameDAO {
     function higherCard($a, $b) {
         $ACE = 'A';
         $KING = 'K';
-        $QUEEEN = 'Q';
+        $QUEEN = 'Q';
         $JACK = 'J';
         $TEN = '10';
         $NINE = '9';

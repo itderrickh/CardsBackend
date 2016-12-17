@@ -37,15 +37,7 @@ class HandDAO {
         $stmt = $mysqli->prepare("UPDATE handcards SET isplayed = 1 WHERE id = ?");
         $stmt->bind_param("i", $handCardId);
         $stmt->execute();
-
-        $stmtPre1 = $mysqli->prepare("SELECT tricknumber FROM games WHERE id = ?");
-        $stmtPre1->bind_param("i", $gameId);
-        $stmtPre1->execute();
-
-        $stmtPre1->bind_result($trickNum);
-        $stmtPre1->fetch();
-
-        $stmtPre1->close();
+        $stmt->close();
 
         $stmt1 = $mysqli->prepare("INSERT INTO tablecards (userid, cardid, tricknumber, gameid) VALUES (?, ?, ?, ?)");
         $stmt1->bind_param("iiii", $userId, $handCardId, $trickNum, $gameId);
@@ -55,6 +47,7 @@ class HandDAO {
         $stmt2 = $mysqli->prepare("UPDATE gameuser SET played = 1 WHERE userid = ? AND gameid = ?");
         $stmt2->bind_param("ii", $userId, $gameId);
         $stmt2->execute();
+        $stmt2->close();
 
         $stmt3 = $mysqli->prepare("SELECT userid FROM gameuser WHERE played = 0 AND gameid = ?");
         $stmt3->bind_param("i", $gameId);
@@ -72,9 +65,7 @@ class HandDAO {
         } else {
             $gameDao->setGameStatus(5, $gameId);
         }
-
-        $stmt->close();
-        $stmt2->close();
+        
         $stmt3->close();
         $mysqli->close();
     }
