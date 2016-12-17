@@ -28,6 +28,7 @@ if(verifyToken($token, $config)) {
     $game = $gameDao->getOrCreateGame();
 
     $result['messages'] = $messageDao->getMessages($game['id']);
+    $result['tricknumber'] = $game['tricknumber'];
 
     //Join game
     if($game['status'] == 1) {

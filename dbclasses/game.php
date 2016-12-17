@@ -252,19 +252,19 @@ class GameDAO {
         $highestCard = $cards[0];
         for($i = 1; $i < count($cards); $i++) {
             if($highestCard['suit'] == $cards[$i]['suit']) {
-                if(!$this->higherCard($highestCard, $cards[$i])) {
+                if(!$this->higherCard($cards[$i], $highestCard)) {
                     $highestCard = $cards[$i];
                 }
             } else {
                 //Cards have same suit
                 if($highestCard['suit'] == $trump['suit'] && $cards[$i]['suit'] == $trump['suit']) {
-                    if(!$this->higherCard($highestCard, $cards[$i])) {
+                    if(!$this->higherCard($cards[$i], $highestCard)) {
                         $highestCard = $cards[$i];
                     }
                 } else if($highestCard['suit'] != $trump['suit'] && $cards[$i]['suit'] == $trump['suit']) {
                     $highestCard = $card[$i];
                 } else if($highestCard['suit'] != $trump['suit'] && $cards[$i]['suit'] != $trump['suit']) {
-                    if(!$this->higherCard($highestCard, $cards[$i])) {
+                    if(!$this->higherCard($cards[$i], $highestCard)) {
                         $highestCard = $cards[$i];
                     }
                 }
@@ -289,7 +289,7 @@ class GameDAO {
         $stmt1->close();
 
         //Give points to highest card
-        $stmt2 = $mysqli->prepare("UPDATE gameuser SET score = ? WHERE userid = ?");
+        $stmt2 = $mysqli->prepare("UPDATE gameuser SET score = score + ? WHERE userid = ?");
         $stmt2->bind_param("ii", $resultValue, $userId);
         $stmt2->execute();
         $stmt2->close();
