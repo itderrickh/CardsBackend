@@ -73,6 +73,7 @@ if(verifyToken($token, $config)) {
         if($toContinue) {
             //Go back to bids
             $gameDao->setGameStatus(3, $game['id']);
+            $gameDao->resetTurn($game['id']);
         } else {
             //Finish the game
             $gameDao->setGameStatus(6, $game['id']);

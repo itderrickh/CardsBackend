@@ -172,8 +172,14 @@ class GameDAO {
         $mysqli->close();
     }
 
-    function resetUsers($gameid) {
-        //Set current turn to played
+    function resetTurn($gameid, $trickNum) {
+        $mysqli = new mysqli($this->config['dbhost'], $this->config['dbuser'], $this->config['dbpass'], $this->config['dbdatabase']);
+        $stmt1 = $mysqli->prepare("UPDATE game SET tricknumber = ? WHERE id = ?");
+        $stmt1->bind_param("ii", $trickNum + 1, $gameid);
+        $stmt1->execute();
+
+        $stmt1->close();
+
         $stmt2 = $mysqli->prepare("UPDATE gameuser SET played = 0 WHERE gameid = ?");
         $stmt2->bind_param("i", $gameid);
         $stmt2->execute();
